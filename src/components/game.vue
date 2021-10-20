@@ -8,13 +8,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, reactive, toRaw, onMounted, ref, computed } from 'vue'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"
 import * as THREE from 'three';
-import bgPic from '../assets/game/disturb.jpg'
-import boxPic from '../assets/game/crate.png'
+// import bgPic from '../assets/game/disturb.jpg'
+// import boxPic from '../assets/game/crate.png'
 
 export default defineComponent({
   setup() {
@@ -39,10 +39,49 @@ export default defineComponent({
     const gameTime = ref(0) // 游戏进行时间
     const manMeshSize = ref(null) // 人物模型的尺寸
 
-    const maxNumBox = computed(() => { // 障碍物在地面上最多存在的个数
+    const sidesList = [
+      {
+        url: 'src/assets/pic/1.png',
+        position: [ -512, 0, 0 ],
+        rotation: [ 0, Math.PI / 2, 0 ]
+      },
+      {
+        url: 'src/assets/pic/2.png',
+        position: [ 512, 0, 0 ],
+        rotation: [ 0, -Math.PI / 2, 0 ]
+      },
+      {
+        url: 'src/assets/pic/3.png',
+        position: [ 0,  512, 0 ],
+        rotation: [ Math.PI / 2, 0, Math.PI ]
+      },
+      {
+        url: 'src/assets/pic/4.png',
+        position: [ 0, -512, 0 ],
+        rotation: [ - Math.PI / 2, 0, Math.PI ]
+      },
+      {
+        url: 'src/assets/pic/5.png',
+        position: [ 0, 0,  512 ],
+        rotation: [ 0, Math.PI, 0 ]
+      },
+      {
+        url: 'src/assets/pic/6.png',
+        position: [ 0, 0, -512 ],
+        rotation: [ 0, 0, 0 ]
+      }
+    ];
+
+    /**
+     * @info 障碍物在地面上最多存在的个数
+     */
+    const maxNumBox = computed(() => {
       return Math.floor((initSpaceBox.value - removeSpaceBox.value) / minSpaceBox.value)
     })
-    // 地板动画
+
+    /**
+     * @info 地板动画
+     */
     const meshGroundAnimate = (list) => {
       list.forEach(modal => {
         modal.translateX(-1 * speed.value)
@@ -54,7 +93,10 @@ export default defineComponent({
         list.push(modal)
       }
     }
-    // 障碍物动画
+
+    /**
+     * @info 障碍物动画
+     */
     const meshBoxAnimate = (boxList, boxFreeList) => {
       boxList.forEach(box => {
         box.translateX(-1 * speed.value)
@@ -75,7 +117,9 @@ export default defineComponent({
       }
     }
 
-    // 食物动画
+    /**
+     * @info 食物动画
+     */
     const goldMeshAnimate = (goldList, goldMesh, scene) => {
       if(goldMesh.value) {
         goldList.forEach(box => {
@@ -100,17 +144,18 @@ export default defineComponent({
       }
     }
 
-
-    // 人物动画
+    /**
+     * @info 人物动画
+     */
     const meshManAnimate = (modal) => {
       if (modal) {
         if (modal.position.y > 0 && isRise.value === false) { // 下降
           // const Math.sqrt(x)
-          let y = Math.sqrt(Math.abs(  -1 * jumpHeight.value - modal.position.y)).toFixed(2)
+          let y = Number(Math.sqrt(Math.abs(  -1 * jumpHeight.value - modal.position.y)).toFixed(2))
           y = y > 1 ? y : 1
           modal.translateY(y * -0.4)
         } else if (modal.position.y <= jumpHeight.value && isRise.value === true) { // 上升
-          let y = Math.sqrt(Math.abs(jumpHeight.value - modal.position.y)).toFixed(2)
+          let y = Number(Math.sqrt(Math.abs(jumpHeight.value - modal.position.y)).toFixed(2))
           y = y > 1 ? y : 1
           modal.translateY(y * 0.4)
         } else if (modal.position.y <= 0 && isRise.value === false && jumpNumed.value !== 0) { // 人物模型跳跃结束
@@ -126,8 +171,9 @@ export default defineComponent({
 
 
     // ================游戏功能
-
-    //判断是否发生碰撞 游戏结束
+    /**
+     * @info 判断是否发生碰撞 游戏结束
+     */
     const isGameOver = (meshMan, boxList) => {
       const meshBox = boxList.find(val => val.position.x <= 10 && val.position.x > -10) // 10 是障碍物宽度1/2
       if (meshBox && meshMan.position.y < 20) { // 20障碍物的高度
@@ -136,8 +182,9 @@ export default defineComponent({
       }
     }
 
-    // 人物是否吃食物
-
+    /**
+     * @info 人物是否吃食物
+     */
     const isEat = (meshMan, goldList, scene) => {
       if (manMeshSize.value) {
         const meshBox = goldList.find(val => val.position.x <= 10 && val.position.x > -10) // 10 是障碍物宽度1/2
@@ -155,10 +202,12 @@ export default defineComponent({
     }
 
 
-
+    /**
+     * @info 检测食物与障碍物是否发生碰撞 如果发生碰撞 则移动食物
+     */   
     const handleCheck = (boxList, goldList) => {
-      const box = boxList.filter(val => val.position.x >= initSpaceBox.value)
-      const gold = goldList.filter(val => val.position.x >= initSpaceBox.value)
+      const box = boxList.filter(val => val.position.x >= initSpaceBox.value - 20) // 多来一点（20）
+      const gold = goldList.filter(val => val.position.x >= initSpaceBox.value - 20) // 多来一点（20）
       gold.forEach((val) => {
         box.forEach(items => {
           if (val.position.x < items.position.x + 40 && val.position.x > items.position.x - 40 && val.position.y <= 30) {
@@ -168,6 +217,9 @@ export default defineComponent({
       })
     }
 
+    /**
+     * @info 随着时间推移 速度越来越快
+     */   
     const openTimer = () => {
       timer = setInterval(() => {
         speed.value = speed.value + 0.1
@@ -177,6 +229,9 @@ export default defineComponent({
       }, 10000);
     }
 
+    /**
+     * @info 游戏进行时间
+     */  
     const liveTime = () => {
       backTimer = setInterval(() => {
         ++gameTime.value
@@ -190,13 +245,14 @@ export default defineComponent({
       backTimer = null
     }
 
-
-    // ================生成模型
+    /**
+     * @info 生成模型
+     */ 
     const creatModal = (scene) => {
       // 地面模型
       var texture = new THREE.TextureLoader();
       var geometryGround = new THREE.PlaneGeometry(100, 100)
-      const img = texture.load(bgPic)
+      const img = texture.load('src/assets/game/disturb.jpg')
 			var materialGround = new THREE.MeshLambertMaterial({
 				map: img,
 			})
@@ -211,7 +267,7 @@ export default defineComponent({
 
       // 障碍物
       var geometryBox = new THREE.BoxGeometry(20, 20, 50)
-      const imgboxPic = texture.load(boxPic)
+      const imgboxPic = texture.load('src/assets/game/crate.png')
       var materialyBox  = new THREE.MeshLambertMaterial({
 				map: imgboxPic,
 			})
@@ -312,7 +368,7 @@ export default defineComponent({
     onMounted(async() => {
       openTimer() // 开启定时器提高速度
       liveTime() // 计时存活时间
-			var scene = new THREE.Scene();
+			const scene = new THREE.Scene();
 			var axisHelper = new THREE.AxisHelper(1000)
 			scene.add(axisHelper);
 
@@ -320,9 +376,11 @@ export default defineComponent({
 			 * 光源设置
 			 */
 			//点光源
-			var point = new THREE.PointLight(0xffffff);
+			const point = new THREE.PointLight(0xffffff);
+      const point1 = new THREE.PointLight(0xffffff);
 			point.position.set(400, 200, 300); //点光源位置
-			scene.add(point); //点光源添加到场景中
+			point1.position.set(0, 0, 0); //点光源位置
+			scene.add(point, point1); //点光源添加到场景中
 			//环境光
 			var ambient = new THREE.AmbientLight(0x444444);
 			scene.add(ambient);
@@ -381,7 +439,7 @@ export default defineComponent({
         meshGroundAnimate(list) // 地板动画
         meshManAnimate(manMesh.value) // 人物模型动画
         handleCheck(boxList, goldList) // 进行检测 保证游戏的正常
-        isGameOver(manMesh.value, boxList) // 判断游戏是否结束
+        // isGameOver(manMesh.value, boxList) // 判断游戏是否结束
         isEat(manMesh.value, goldList, scene) // 判断人物上是否吃到食物
 
 
