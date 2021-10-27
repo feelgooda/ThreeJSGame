@@ -2,9 +2,9 @@
   <div>
     <!-- <div class="text">盒子 {{ref2.name}}</div> -->
     <div class="box">
-      <!-- <Test  :fliterList="filterList" :realList="ruleList" /> -->
+      <Test  :fliterList="filterList" :realList="ruleList" />
     <!-- <Child/> -->
-    <Game/>
+    <!-- <Game/> -->
     <!-- <Echarts/> -->
     <!-- <Drag/> -->
     </div>

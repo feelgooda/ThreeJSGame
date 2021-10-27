@@ -975,12 +975,12 @@ json5@^2.1.2:
 
 klona@^2.0.4:
   version "2.0.4"
-  resolved "https://registry.nlark.com/klona/download/klona-2.0.4.tgz"
+  resolved "https://registry.nlark.com/klona/download/klona-2.0.4.tgz#7bb1e3affb0cb8624547ef7e8f6708ea2e39dfc0"
   integrity sha1-e7Hjr/sMuGJFR+9+j2cI6i4538A=
 
 less-loader@^10.0.1:
   version "10.0.1"
-  resolved "https://registry.nlark.com/less-loader/download/less-loader-10.0.1.tgz"
+  resolved "https://registry.npmmirror.com/less-loader/download/less-loader-10.0.1.tgz?cache=0&sync_timestamp=1634563316399&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Fless-loader%2Fdownload%2Fless-loader-10.0.1.tgz#c05aaba68d00400820275f21c2ad87cb9fa9923f"
   integrity sha1-wFqrpo0AQAggJ18hwq2Hy5+pkj8=
   dependencies:
     klona "^2.0.4"
